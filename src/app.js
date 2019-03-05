@@ -67,6 +67,8 @@ export default (function () {
     	table.appendChild(row);
     });
 
+    setStatistic(table);
+
   }
 
   function changeDate(date){
@@ -330,8 +332,133 @@ export default (function () {
     var head = document.getElementsByTagName('head')[0];
 
     head.appendChild(style);
+  }
 
+/**
+* get Statistiv
+* @param { table } the table to which the statistics field will be added
+*/
+  function setStatistic(table){
+    
+    var orderCount = createdTd("Orders Count", 5);
+    var valueOrderCount = createdTd("$ " + getOrdersLength(), 2);
    
+     valueOrderCount.style.textAlign = "right";
+
+    var trOrder = createdTr(orderCount, valueOrderCount);
+
+    var orderTotal = createdTd("Orders Total", 5);
+    var valueOrderTotal = createdTd("$ " + getOrdersTotal().toFixed(2), 2);
+     valueOrderTotal.style.textAlign = "right";
+
+    var trOrderTotal = createdTr(orderTotal, valueOrderTotal);
+    
+
+    var medianValue = createdTd("Median Value", 5);
+    var valueMedian = createdTd("$ " + "$ " + getMediana(), 2);
+     valueMedian.style.textAlign = "right";
+
+    var valueMedianValue = createdTr(medianValue, valueMedian);
+
+    var averageCheck = createdTd("Average Check", 5);
+    var valueAverageCheck = createdTd("$ " + getAverageCheck(getOrdersLength(), getOrdersTotal().toFixed(2)), 2);
+    valueAverageCheck.style.textAlign = "right";
+
+    var valueAverageCheck = createdTr(averageCheck, valueAverageCheck);
+
+    var averageFemaleCheck = createdTd("Average Check (Female)", 5);
+    var valueAverageFemaleCheck = createdTd("$ " + getAverageFemaleCheck(getOrdersLength(), getOrdersTotal().toFixed(2)), 2);
+    valueAverageFemaleCheck.style.textAlign = "right";
+
+    var valueAverageFemaleCheck = createdTr(averageFemaleCheck, valueAverageFemaleCheck);
+
+
+
+
+    table.append(trOrder);
+    table.appendChild(trOrderTotal);
+    table.appendChild(valueMedianValue);
+    table.appendChild(valueAverageCheck);
+    table.appendChild(valueAverageFemaleCheck);
+}
+
+/**
+* @return { stat } object with statistics fields
+*/
+  function getOrdersLength(){
+    return orders.length;
+  }
+
+  /**
+* @return { stat } object with statistics fields
+*/
+  function getOrdersTotal(){
+    var summ =0;
+    orders.forEach((order)=>{
+      summ +=  Number(order.total);
+    });
+
+    return summ;
+  }
+
+  function getMediana(){
+    var mediana;
+    var massTotal = [];
+    orders.forEach((order)=>{
+      massTotal.push(order.total);
+    });
+
+    massTotal.sort();
+
+    if (Number.isInteger(massTotal.length/2)){
+      var center = massTotal.length/2;
+
+      mediana = (Number(massTotal[center]) + Number(massTotal[center + 1]))/2;
+    } else {
+     var centerToDown = Math.floor(massTotal.length/2);
+     mediana = massTotal[centerToDown + 1];
+    }
+
+    return mediana;
+  }
+
+  function getAverageCheck(count, total){
+    return (total/count).toFixed(2);
+  }
+
+  function getAverageFemaleCheck(count, total){
+    var massFemale = [];
+    var massMan = [];
+
+    users.forEach((user)=>{
+      if (users.gender == "Female"){
+        massFemale.push(user.id)
+      } else {
+        massMan.push(user.id);
+      }
+    });
+    console.log(massFemale)
+    console.log(massMan)
+
+    //пробежаться по id и сложить значения total каждого id
+    return (total/count).toFixed(2);
+  }
+
+  function createdTd(nameField, colspanValue){
+    var td = document.createElement('td');
+    td.setAttribute('colspan', colspanValue);
+    td.innerHTML = nameField;
+
+    return td;
+  }
+
+  function createdTr(itemTd, valueTd){
+    var tr = document.createElement('tr');
+
+    tr.append(itemTd);
+    tr.append(valueTd);
+
+   return tr;
   }
 
 }());
