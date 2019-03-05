@@ -1,5 +1,3 @@
-// this is an example of improting data from JSON
-
 import * as data from '../data/orders.json';
 import * as dataUsers from '../data/users.json';
 
@@ -8,14 +6,17 @@ const users = dataUsers.default;
 
 
 export default (function () {
-    // YOUR CODE GOES HERE
-    // next line is for example only
-  initialization();
 
-  function initialization(){
+  clickTableHeader();
+  initialization(orders);
+  setIventToTable();
+
+  function initialization( ordersArray){
+  
     var table = document.getElementsByTagName('tbody')[0];
+    table.innerHTML = "";
     var user;
-    orders.forEach((order)=>{
+    ordersArray.forEach((order)=>{
     
     	var row = document.createElement('tr');
       row.id = "order" + order.id;
@@ -142,24 +143,25 @@ export default (function () {
 
 
   function addInfoBlock (user){
-    //console.log(user);
     var div = document.createElement('div');
     div.className += " user-details";
     div.style.position = "absolute";
     div.style.width = "200px";
     div.style.bootom = "0";
     div.style.background = "green";
-    div.id = user.user.id;
     div.style.display = "none";
     div.style.zIndex = "99";
 
-    var obj = {};
-    obj.Birthday = changeDateForUser(user.user.birthday);
-    obj.Company = user.user.company_id;
-    obj.Industry = "Apparel / Consumer Services";
-    
-    
+    try {
+      div.id = user.user.id;
 
+      var obj = {};
+      obj.Birthday = changeDateForUser(user.user.birthday);
+      obj.Company = user.user.company_id;
+      obj.Industry = "Apparel / Consumer Services";
+
+    } catch(e){}
+    
     for (let key in obj){
       var p = document.createElement('p');
       p.innerHTML = key + ":  " + obj[key];
@@ -202,5 +204,134 @@ export default (function () {
     });
   }
 
- 
+
+ function setIventToTable(){
+   var table  = document.getElementById('tebleHeader').children;
+   
+   for (let count = 0; count<table.length; count++){
+      table[count].onclick = function(){
+       sort(this);
+     }
+   }
+ }
+
+ function sort(element){
+   closeBlock();
+   var el = element.children;
+  
+  if (element.textContent == "User Info" || element.textContent == "User Info↓"){
+      if (element.textContent == "User Info"){
+
+        var sortUser = users.sort(sortByFullNameUp);
+
+        var icoSort = document.createElement('span');
+        icoSort.innerHTML = "&#8595;";
+        icoSort.style.marginLeft = "10px";
+        icoSort.id = "icoSort";
+        element.append(icoSort);
+        refactOrders(sortUser);
+      } else {
+        var sortUser = users.sort(sortByFullNameDown);
+        refactOrders(sortUser);
+        element.textContent = "User Info";
+      }
+     
+    } else if (element.textContent == "Location" || element.textContent == "Location↓"){
+        if (element.textContent == "Location"){
+          
+          var sortOrders = orders.sort(sortByLocationUp);
+
+          var icoSort = document.createElement('span');
+          icoSort.innerHTML = "&#8595;";
+          icoSort.style.marginLeft = "10px";
+          icoSort.id = "icoSort";
+
+          element.append(icoSort);
+          refactOrders(sortOrders);
+        } else {
+          var sortOrders = orders.sort(sortByLocationDown);
+
+        refactOrders(sortOrders);
+
+        element.textContent = "Location";
+      }
+         
+      }
+
+}
+
+   //console.log("add <span></span>");
+  
+ function sortByFullNameUp(a, b){
+    if (a.first_name> b.first_name)
+      return -1;
+    if (a.first_name< b.first_name) 
+      return 1;
+    if (a.last_name> b.last_name)
+      return -1;
+    if (a.last_name< b.last_name) 
+      return 1;    
+  }
+
+ function sortByFullNameDown(a, b){
+    if (a.first_name > b.first_name)
+      return 1;
+    if (a.first_name< b.first_name) 
+      return -1;
+    if (a.last_name> b.last_name)
+      return 1;
+    if (a.last_name< b.last_name) 
+      return -1; 
+ }
+
+ function sortByLocationUp(a, b){
+   if (a.order_country > b.order_country)
+      return -1;
+    if (a.order_country < b.order_country) 
+      return 1;
+    if (a.order_ip > b.order_ip)
+      return -1;
+    if (a.order_ip < b.order_ip) 
+      return 1; 
+ }
+
+ function sortByLocationDown(a, b){
+   if (a.order_country > b.order_country)
+      return 1;
+    if (a.order_country < b.order_country) 
+      return -1;
+    if (a.order_ip > b.order_ip)
+      return 1;
+    if (a.order_ip < b.order_ip) 
+      return -1; 
+ }
+
+  function refactOrders(sortUsers){
+    var newOrder = [];
+    sortUsers.forEach((user)=>{
+      orders.forEach((order)=>{
+        if (user.id == order.id){
+          newOrder.push(order);
+        }
+      });
+    });
+
+    initialization(newOrder)
+  }
+
+  function clickTableHeader(){
+    var style = document.createElement('style');
+    style.type = 'text/css';
+
+    var h = '.headerItem:hover{cursor: s-resize;}';
+    var hover = document.createTextNode(h);
+    style.appendChild(hover);
+
+    var head = document.getElementsByTagName('head')[0];
+
+    head.appendChild(style);
+
+   
+  }
+
 }());
