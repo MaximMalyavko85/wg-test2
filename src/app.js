@@ -69,6 +69,7 @@ export default (function () {
 
     setStatistic(table);
 
+    tableSearch();
   }
 
   function changeDate(date){
@@ -482,6 +483,35 @@ export default (function () {
     tr.append(valueTd);
 
    return tr;
+  }
+
+
+  function tableSearch(){
+    var input = document.getElementById('search');
+    var table = document.getElementsByTagName('tbody')[0];
+
+    
+    input.onkeyup = function(){
+     var regPhrase = new RegExp(this.value, 'i');
+     var flag = false;
+
+     for (var i = 0; i < table.children.length; i++) {
+       flag = false;
+       for (var j = 0;  j < table.children[i].children.length; j++) {
+         flag = regPhrase.test(table.children[i].children[j].textContent);
+          if (flag) break;
+       }
+
+       if (flag) {
+            table.children[i].style.display = "";
+            table.children[i].dataset.display = 1;
+        } else {
+            table.children[i].style.display = "none";
+            table.children[i].dataset.display = 0;
+        }
+     }
+    }
+    
   }
 
 }());
