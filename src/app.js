@@ -26,8 +26,8 @@ export default (function () {
       var id = document.createElement('td');
       var tegA = document.createElement('a');
       
-      if ( searchUsers(order.id) == undefined){
-        tegA.innerHTML = "<span style = 'color: red'>user not found</span>";
+      if ( searchUsers(order.id).user == undefined){
+        tegA.innerHTML = "<h6 style = 'color: red; font-size:12px;'>user not found (does not participate in statistics and sorting)</h6>";
       } else {
         user = searchUsers(order.id);
         tegA.innerHTML =  user.name
@@ -367,10 +367,16 @@ export default (function () {
     var valueAverageCheck = createdTr(averageCheck, valueAverageCheck);
 
     var averageFemaleCheck = createdTd("Average Check (Female)", 5);
-    var valueAverageFemaleCheck = createdTd("$ " + getAverageFemaleCheck(getOrdersLength(), getOrdersTotal().toFixed(2)), 2);
+    var valueAverageFemaleCheck = createdTd("$ " + getAverageFemaleCheck(getOrdersLength(), getOrdersTotal().toFixed(2)).female, 2);
     valueAverageFemaleCheck.style.textAlign = "right";
 
     var valueAverageFemaleCheck = createdTr(averageFemaleCheck, valueAverageFemaleCheck);
+
+    var averageMaleCheck = createdTd("Average Check (Male)", 5);
+    var valueAverageMaleCheck = createdTd("$ " + getAverageFemaleCheck(getOrdersLength(), getOrdersTotal().toFixed(2)).male, 2);
+    valueAverageMaleCheck.style.textAlign = "right";
+
+    var valueAverageMaleCheck = createdTr(averageMaleCheck, valueAverageMaleCheck);
 
 
 
@@ -380,6 +386,7 @@ export default (function () {
     table.appendChild(valueMedianValue);
     table.appendChild(valueAverageCheck);
     table.appendChild(valueAverageFemaleCheck);
+    table.appendChild(valueAverageMaleCheck);
 }
 
 /**
@@ -431,17 +438,33 @@ export default (function () {
     var massMan = [];
 
     users.forEach((user)=>{
-      if (users.gender == "Female"){
+      if (user.gender == "Female"){
         massFemale.push(user.id)
       } else {
         massMan.push(user.id);
       }
     });
-    console.log(massFemale)
-    console.log(massMan)
 
-    //пробежаться по id и сложить значения total каждого id
-    return (total/count).toFixed(2);
+    var countFemale = getCountFemaleMale(massFemale);
+    var countMale = getCountFemaleMale(massMan);
+    
+    return {
+      female: countFemale.toFixed(2),
+      male: countMale.toFixed(2)
+    };
+  }
+
+  function getCountFemaleMale(femaleArray){
+    var count=0;
+    femaleArray.forEach((id)=>{
+      orders.forEach((order)=>{
+        if (id === order.id){
+          count += Number(order.total);
+        }
+      });
+    });
+
+    return count;
   }
 
   function createdTd(nameField, colspanValue){
